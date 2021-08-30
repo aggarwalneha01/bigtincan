@@ -1,21 +1,30 @@
 {
   "name": "bigtincan",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "dependencies": {
-    "@testing-library/jest-dom": "^5.11.4",
-    "@testing-library/react": "^11.1.0",
-    "@testing-library/user-event": "^12.1.10",
+    "@babel/preset-env": "^7.10.4",
+    "@babel/preset-react": "^7.10.4",
+    "axios": "^0.21.1",
+    "axios-mock-adapter": "^1.20.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "react-scripts": "4.0.3",
-    "web-vitals": "^1.0.1"
+    "react-scripts": "4.0.3"
+  },
+  "devDependencies": {
+    "enzyme": "^3.11.0",
+    "enzyme-adapter-react-16": "^1.15.1",
+    "eslint": "^7.17.0",
+    "eslint-loader": "^4.0.2",
+    "expect": "^26.6.2",
+    "git-hooks": "^1.1.10",
+    "jsdom": "^16.4.0",
+    "webpack-dev-server": "^4.0.0"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "test": "jest"
   },
   "eslintConfig": {
     "extends": [

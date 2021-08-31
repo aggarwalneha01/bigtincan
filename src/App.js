@@ -1,15 +1,7 @@
 
 import React, {useState} from 'react';
-import axios from 'axios';
-// import mockadapter from 'axios-mock-adapter';
+import axios from 'axios'
 import Checkbox from './checkbox';
-// import './App.css';
-
-// var mock = new mockadapter(axios);
-// mock.onPost("/create").reply(200,{});
-// mock.onDelete("/delete").reply(200,{});
-// mock.onGet("/read").reply(200,{});
-// mock.onPut("/replace").reply(200,{});
 
 const App = () => {
 
@@ -115,10 +107,11 @@ const deleteHandler = () => {
 }
 
 const readHandler = () => {
-  if(validate()){
-   setAction("read");
-  const readData = {"operation":operation.read,"fileId":fileId};
-  apiCall(axios.get, readData, url="https://612d51fae579e1001791db49.mockapi.io/files/"+fileId);
+  if(validate())
+  {
+      setAction("read");
+      const readData = {"operation":operation.read,"fileId":fileId};
+      apiCall(axios.get, readData, url="https://612d51fae579e1001791db49.mockapi.io/files/"+fileId);
   }
 }
 

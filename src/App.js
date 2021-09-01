@@ -1,12 +1,12 @@
 
 import React, {useState} from 'react';
 import axios from 'axios'
-import Checkbox from './checkbox';
+// import './App.css';
 
 const App = () => {
 
   let url;
-  const checkboxes = [
+  const files = [
     {
         name: "file-1",
         key: "1",
@@ -30,7 +30,6 @@ const App = () => {
 ];
   
 	const [isSelected, setIsSelected] = useState(false);
-  const [isChecked, setIsChecked] = useState({});
   const [upload, setUpload]= useState(false);
   const [selectedFile, setSelectedFile] = useState();
   const [fileId, setFileId]= useState();
@@ -48,11 +47,6 @@ const App = () => {
 		setIsSelected(true);
 	};
 
-  const handleInputChange = (event) => {
-    setFileId(event.target.id);
-    setIsChecked({...isChecked, [event.target.name] : event.target.checked });
-  }
-
   const apiCall = (axiosAction, data, url ) => {
     axiosAction(url, data)
                 .then((res) => {
@@ -69,7 +63,7 @@ const handleSubmission = () => {
   else{
     const formData = new FormData();
     if(action==='create'){
-      const createData = {"operation":operation.create,"data":selectedFile, "fileId":"1"};
+      const createData = {"operation":operation.create,"data":selectedFile};
       formData.append('File', selectedFile);
       apiCall(axios.post, createData, url='https://612d51fae579e1001791db49.mockapi.io/files');
     }
@@ -83,69 +77,49 @@ const handleSubmission = () => {
   }
 };
 
-const validate = () => {
-  if((Object.keys(isChecked).length !== 1)){
-    alert("Please select one file");
-    return false;
-  }
-  return true;
-}
-
-
 const createHandler = () => {
   setAction("create");
   setUpload(true);
 }
 
-const deleteHandler = () => {
-  if(validate()) 
-  {
+const deleteHandler = (id) => {
+    setFileId(id);
       setAction("delete");
-      const deleteData = {"operation":operation.delete,"fileId":fileId};
-      apiCall(axios.delete, deleteData, url="https://612d51fae579e1001791db49.mockapi.io/files/"+fileId);
- }
+      const deleteData = {"operation":operation.delete,"fileId":id};
+      apiCall(axios.delete, deleteData, url="https://612d51fae579e1001791db49.mockapi.io/files/"+id);
 }
 
-const readHandler = () => {
-  if(validate())
-  {
+const readHandler = (id) => {
       setAction("read");
-      const readData = {"operation":operation.read,"fileId":fileId};
-      apiCall(axios.get, readData, url="https://612d51fae579e1001791db49.mockapi.io/files/"+fileId);
-  }
+      const readData = {"operation":operation.read,"fileId":id};
+      apiCall(axios.get, readData, url="https://612d51fae579e1001791db49.mockapi.io/files/"+id);
 }
 
-const replaceHandler = () => {
-  if(validate()){
-  setAction("replace");
-  setUpload(true);
-  }
+const replaceHandler = (id) => {
+    setFileId(id);
+    setAction("replace");
+    setUpload(true);
 }
 
-const checkboxesToRender = checkboxes.map(item => {
+const filesToRender = files.map(item => {
   return (
-      <label key={item.key}>
-          {item.name}
-          <Checkbox
-              id={item.key}
-              name={item.name}
-              checked={isChecked[item.name]}
-              onChange={handleInputChange}
-              type="checkbox"
-          />
+    <ul key={item.key}>
+      <label key={item.key} className='App'>
+          {item.name + ' --- '}
+        <button onClick={()=>replaceHandler(item.key)}>Update</button>
+        <button onClick={()=>readHandler(item.key)}>Read</button>
+        <button onClick={()=>deleteHandler(item.key)}>Delete</button>
       </label>
+      </ul>
   );
 });
 
 
 	return(
    <div >
-     {checkboxesToRender}
+     {filesToRender}
       <div>
-				<button name ='create 'onClick={createHandler}>Create</button>
-        <button onClick={replaceHandler}>Update</button>
-        <button onClick={readHandler}>Read</button>
-        <button onClick={deleteHandler}>Delete</button>
+				<button onClick={createHandler}>Create</button>
 			</div>
       <div>
         {upload ? <input type="file" name="file" onChange={changeHandler} /> : ''}

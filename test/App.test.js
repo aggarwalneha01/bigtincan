@@ -12,37 +12,68 @@ const mockProps = {
   deleteHandler: jest.fn(),
   readHandler: jest.fn(),
   replaceHandler: jest.fn(),
-  isChecked: {"file-1": true},
-  fileId: "file-1"
+  handleSubmission: jest.fn(),
+  fileId: "file-1",
+  id: '1'
 };
  
-describe('deleteData', () => {
+describe('Data', () => {
   it('should call axios delete function on clicking delete button', () => {
-    const view = shallow(<App deleteHandler={ mockProps.deleteHandler} isChecked={mockProps.isChecked}/>);
-    view.find('button').at(3).simulate('click');
+    const deleteData = {"operation":'delete',"fileId":mockProps.id};
+    const url="https://612d51fae579e1001791db49.mockapi.io/files/"+mockProps.id;
     axios.delete.mockImplementation(() => Promise.resolve({}))
+    const view = shallow(<App deleteHandler={ mockProps.deleteHandler} id={mockProps.id}/>);
+    view.find('ul').first().find('button').last().simulate('click');
+    
     expect(axios.delete).toHaveBeenCalledTimes(1);
+    expect(axios.delete).toHaveBeenCalledWith(url, deleteData);
 
   })
   it('should call axios read function on clicking read button', () => {
-    const view = shallow(<App readHandler={mockProps.readHandler}isChecked={mockProps.isChecked}/>);
-    view.find('button').at(2).simulate('click');
+    const readData = {"operation":'read',"fileId":mockProps.id};
+    const url="https://612d51fae579e1001791db49.mockapi.io/files/"+mockProps.id;
     axios.get.mockImplementation(() => Promise.resolve({}))
+    const view = shallow(<App readHandler={ mockProps.readHandler} id={mockProps.id}/>);
+    view.find('ul').first().find('button').at(1).simulate('click');
+    
     expect(axios.get).toHaveBeenCalledTimes(1);
+    expect(axios.get).toHaveBeenCalledWith(url, readData);
 
   })
   it('should call axios create function on clicking create button', () => {
-    const view = shallow(<App createHandler={mockProps.createHandler}isChecked={mockProps.isChecked}/>);
-    view.find('button').at(0).simulate('click');
-    axios.create.mockImplementation(() => Promise.resolve({}))
+    const createData = {"operation":'create',"data":'selectedFile.txt'};
+    const url="https://612d51fae579e1001791db49.mockapi.io/files";
+    axios.get.mockImplementation(() => Promise.resolve({}))
+    const view = shallow(<App createHandler={ mockProps.createHandler} isSelected={true} />);
+    const button=view.find('button');
+    const createButton = button.findWhere(node => {
+      return node.type() === 'button' && node.text() === "Create";
+    }).simulate('click');
+    view.update();
+    view.find('button').findWhere(node => {
+      return node.type() === 'button' && node.text() === "Submit";
+    }).simulate('click');
+    console.log(view.debug());
+    
+    
+    expect(view.find('input[type="file"]')).toBeTruthy();
     expect(axios.create).toHaveBeenCalledTimes(1);
-
+    expect(axios.create).toHaveBeenCalledWith(url, createData);
   })
   it('should call axios replace function on clicking replace button', () => {
-    const view = shallow(<App replaceHandler={mockProps.replaceHandler}isChecked={mockProps.isChecked}/>);
-    view.find('button').at(1).simulate('click');
-    axios.put.mockImplementation(() => Promise.resolve({}))
+    const replaceData = {"operation":'replace',"data":'selectedFile.txt', "fileId": mockProps.id};
+    const url="https://612d51fae579e1001791db49.mockapi.io/files/"+mockProps.id;
+    axios.get.mockImplementation(() => Promise.resolve({}))
+    const view = shallow(<App replaceHandler={mockProps.replaceHandler} isSelected={true}/>);
+    const test=view.find('ul').first().find('button').first().simulate('click');
+    view.update();
+    view.find('input[type="file"]').simulate('click');
+    view.update();
+    console.log(view.debug());
+    
+    expect(view.find('input[type="file"]')).toBeTruthy();
     expect(axios.put).toHaveBeenCalledTimes(1);
+    expect(axios.put).toHaveBeenCalledWith(url, replaceData);
 
   })
  

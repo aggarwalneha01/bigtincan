@@ -1,39 +1,23 @@
 
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import axios from 'axios'
-// import './App.css';
 
 const App = () => {
-
-  let url;
-  const files = [
-    {
-        name: "file-1",
-        key: "1",
-        label: "file 1"
-    },
-    {
-        name: "file-2",
-        key: "2",
-        label: "file 2"
-    },
-    {
-        name: "file-3",
-        key: "3",
-        label: "file 3"
-    },
-    {
-        name: "file-4",
-        key: "4",
-        label: "file 4"
-    }
-];
   
 	const [isSelected, setIsSelected] = useState(false);
   const [upload, setUpload]= useState(false);
   const [selectedFile, setSelectedFile] = useState();
   const [fileId, setFileId]= useState();
   const [action, setAction] = useState();
+  const [mockData, setMockData] = useState('') 
+
+  useEffect(() => {                             
+      axios.get('https://612d51fae579e1001791db49.mockapi.io/files')
+      .then((res) => {
+        setMockData(res.data);
+    })
+      .catch((err) => alert(err))
+  }, [setMockData])
 
   const operation = {
     create: 'create',
@@ -47,13 +31,19 @@ const App = () => {
 		setIsSelected(true);
 	};
 
+  function refresh() {    
+    setTimeout(function () {
+        window.location.reload()
+    }, 500);
+}
+
   const apiCall = (axiosAction, data, url ) => {
     axiosAction(url, data)
                 .then((res) => {
-                  alert("Operation Successfull " + JSON.stringify(res));
+                  alert( " Operation Successfull ");
               })
                 .catch((err) => alert(err));
-
+                refresh();
   }
 
 const handleSubmission = () => {
@@ -65,13 +55,13 @@ const handleSubmission = () => {
     if(action==='create'){
       const createData = {"operation":operation.create,"data":selectedFile};
       formData.append('File', selectedFile);
-      apiCall(axios.post, createData, url='https://612d51fae579e1001791db49.mockapi.io/files');
+      apiCall(axios.post, createData, 'https://612d51fae579e1001791db49.mockapi.io/files');
     }
     else if (action ==='replace')
     {
       const replaceData = {"operation":operation.replace,"data":selectedFile, "fileId": fileId};
       formData.append('File', selectedFile);
-      apiCall(axios.put, replaceData, url="https://612d51fae579e1001791db49.mockapi.io/files/"+fileId);
+      apiCall(axios.put, replaceData, "https://612d51fae579e1001791db49.mockapi.io/files/"+fileId);
     
     }
   }
@@ -86,13 +76,23 @@ const deleteHandler = (id) => {
     setFileId(id);
       setAction("delete");
       const deleteData = {"operation":operation.delete,"fileId":id};
-      apiCall(axios.delete, deleteData, url="https://612d51fae579e1001791db49.mockapi.io/files/"+id);
+      apiCall(axios.delete, deleteData, "https://612d51fae579e1001791db49.mockapi.io/files/"+id);
 }
 
 const readHandler = (id) => {
       setAction("read");
       const readData = {"operation":operation.read,"fileId":id};
-      apiCall(axios.get, readData, url="https://612d51fae579e1001791db49.mockapi.io/files/"+id);
+      axios.get("https://612d51fae579e1001791db49.mockapi.io/files/"+id, {responseType: 'blob'})
+      .then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'file'+id);
+        document.body.appendChild(link);
+        link.click();
+     }).catch(err => {
+         console.log(err);
+       });
 }
 
 const replaceHandler = (id) => {
@@ -101,18 +101,18 @@ const replaceHandler = (id) => {
     setUpload(true);
 }
 
-const filesToRender = files.map(item => {
+const filesToRender = (mockData && mockData.map(item => {
   return (
-    <ul key={item.key}>
-      <label key={item.key} className='App'>
-          {item.name + ' --- '}
-        <button onClick={()=>replaceHandler(item.key)}>Update</button>
-        <button onClick={()=>readHandler(item.key)}>Read</button>
-        <button onClick={()=>deleteHandler(item.key)}>Delete</button>
+    <ul key={item.fileId}>
+      <label key={item.fileId} className='App'>
+          {'file-'+item.fileId + ' --- '}
+        <button onClick={()=>replaceHandler(item.fileId)}>Update</button>
+        <button onClick={()=>readHandler(item.fileId)}>Download</button>
+        <button onClick={()=>deleteHandler(item.fileId)}>Delete</button>
       </label>
       </ul>
   );
-});
+}));
 
 
 	return(
